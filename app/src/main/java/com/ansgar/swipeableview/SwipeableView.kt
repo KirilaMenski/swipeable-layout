@@ -80,10 +80,13 @@ class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(contex
         animateEditText(animatedIvPos)
     }
 
-    private fun animateEditText(alpha: Float) {
+    private fun animateEditText(value: Float) {
+        val alpha = value / 1000
         Log.i(TAG, "Alpha: $alpha")
-        editText?.visibility = View.VISIBLE
-        editText?.alpha = alpha / 1000
+        if (alpha < 0.15) editText?.visibility = View.GONE
+        else editText?.visibility = View.VISIBLE
+
+        editText?.alpha = alpha * 2
     }
 
     private fun getDisplayMetric(): DisplayMetrics {
