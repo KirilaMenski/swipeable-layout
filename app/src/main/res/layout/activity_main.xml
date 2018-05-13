@@ -17,12 +17,26 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.ansgar.swipeableview.SwipeableView
+        android:id="@+id/swipeable_view"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:background="@android:color/white"
         android:orientation="vertical"
         app:image_view_id="@+id/image_view"
         app:layout_constraintBottom_toBottomOf="parent">
+
+        <EditText
+            android:id="@+id/edit_text"
+            android:layout_width="match_parent"
+            android:hint="Input some text"
+            android:layout_height="wrap_content"
+            android:visibility="gone"/>
+
+        <ImageView
+            android:id="@+id/image_v"
+            android:layout_width="wrap_content"
+            android:src="@android:drawable/alert_dark_frame"
+            android:layout_height="wrap_content" />
 
         <RelativeLayout
             android:id="@+id/content_bottom_ll"

@@ -6,8 +6,10 @@ import android.util.AttributeSet
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 
@@ -20,13 +22,18 @@ class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(contex
     private var onChangeListener: OnChangeListener? = null
     private var yOffset: Float = 0f
     private var xOffset: Float = 0f
-    private var animatedIv: ImageView? = null
+    private var screenWidth: Int = 0
+    private var screenHeight: Int = 0
+    var bottomIv: ImageView? = null
+    var editText: EditText? = null
 
     init {
-        val typedArray: TypedArray = context.obtainStyledAttributes(attrs, R.styleable.SwipeableView, 0 ,0)
+        val typedArray: TypedArray = context.obtainStyledAttributes(attrs, R.styleable.SwipeableView, 0, 0)
         val animatedIvResId = typedArray.getResourceId(R.styleable.SwipeableView_image_view_id, -1)
-        animatedIv = findViewById(animatedIvResId)
-        typedArray.recycle()
+//        bottomIv = findViewById(animatedIvResId)
+//        typedArray.recycle()
+        screenWidth = getScreenWidth()
+        screenHeight = getScreenHeight()
     }
 
     /**
@@ -51,12 +58,12 @@ class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(contex
     }
 
     private fun onActionDown(x: Float, y: Float) {
-
+        yOffset = y
     }
 
     private fun onActionMove(x: Float, y: Float) {
         val params: ViewGroup.LayoutParams = layoutParams
-        params.height = (getScreenHeight() - y).toInt()
+        params.height = (screenHeight - y + yOffset).toInt()
         this.layoutParams = layoutParams
 
         moveBottomIv()
@@ -67,11 +74,16 @@ class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(contex
     }
 
     private fun moveBottomIv() {
-//        val params = animatedIv?.layoutParams
         val viewPosPercent: Double = height.toDouble() / getScreenHeight()
-        val animatedIvPos = getScreenWidth() * viewPosPercent
-        Log.i(TAG, "$animatedIvPos")
-        animatedIv?.x = animatedIvPos.toFloat()
+        val animatedIvPos: Float = (width * viewPosPercent / 1.2).toFloat()
+        bottomIv?.x = animatedIvPos
+        animateEditText(animatedIvPos)
+    }
+
+    private fun animateEditText(alpha: Float) {
+        Log.i(TAG, "Alpha: $alpha")
+        editText?.visibility = View.VISIBLE
+        editText?.alpha = alpha / 1000
     }
 
     private fun getDisplayMetric(): DisplayMetrics {
@@ -96,19 +108,6 @@ class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(contex
         fun onViewDismissed()
 
         fun onContentChanged()
-    }
-
-    companion object {
-
-        class Builder {
-            private var onChangeListener: OnChangeListener? = null
-
-            fun setChangeListener(onChangeListener: OnChangeListener): Builder {
-                this.onChangeListener = onChangeListener
-                return this
-            }
-        }
-
     }
 
 }
