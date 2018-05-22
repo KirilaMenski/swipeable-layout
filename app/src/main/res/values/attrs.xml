@@ -2,5 +2,7 @@
 <resources>
     <declare-styleable name="SwipeableView">
         <attr name="image_view_id" format="reference"/>
+        <attr name="middle_height" format="dimension"/>
+        <attr name="end_height" format="dimension"/>
     </declare-styleable>
 </resources>

@@ -23,20 +23,21 @@
         android:background="@android:color/white"
         android:orientation="vertical"
         app:image_view_id="@+id/image_view"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:middle_height="150dp">
 
         <EditText
             android:id="@+id/edit_text"
             android:layout_width="match_parent"
-            android:hint="Input some text"
             android:layout_height="wrap_content"
-            android:visibility="gone"/>
+            android:hint="Input some text"
+            android:visibility="gone" />
 
         <ImageView
             android:id="@+id/image_v"
             android:layout_width="wrap_content"
-            android:src="@android:drawable/alert_dark_frame"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:src="@android:drawable/alert_dark_frame" />
 
         <RelativeLayout
             android:id="@+id/content_bottom_ll"
@@ -49,6 +50,7 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_alignParentBottom="true"
+                android:layout_toLeftOf="@+id/text_view"
                 android:src="@drawable/image" />
 
             <TextView

@@ -26,10 +26,14 @@ class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(contex
     private var screenHeight: Int = 0
     var bottomIv: ImageView? = null
     var editText: EditText? = null
+    var middleHeight: Int = 0
+    var endHeight: Int = 0
 
     init {
         val typedArray: TypedArray = context.obtainStyledAttributes(attrs, R.styleable.SwipeableView, 0, 0)
         val animatedIvResId = typedArray.getResourceId(R.styleable.SwipeableView_image_view_id, -1)
+        middleHeight = typedArray.getDimensionPixelOffset(R.styleable.SwipeableView_middle_height, 0)
+        endHeight = typedArray.getDimensionPixelOffset(R.styleable.SwipeableView_end_height, 0)
 //        bottomIv = findViewById(animatedIvResId)
 //        typedArray.recycle()
         screenWidth = getScreenWidth()
@@ -76,13 +80,12 @@ class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(contex
     private fun moveBottomIv() {
         val viewPosPercent: Double = height.toDouble() / getScreenHeight()
         val animatedIvPos: Float = (width * viewPosPercent / 1.2).toFloat()
-        bottomIv?.x = animatedIvPos
+//        bottomIv?.x = -animatedIvPos
         animateEditText(animatedIvPos)
     }
 
     private fun animateEditText(value: Float) {
         val alpha = value / 1000
-        Log.i(TAG, "Alpha: $alpha")
         if (alpha < 0.15) editText?.visibility = View.GONE
         else editText?.visibility = View.VISIBLE
 
@@ -92,7 +95,7 @@ class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(contex
     private fun getDisplayMetric(): DisplayMetrics {
         val windowManager: WindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val display = windowManager.defaultDisplay
-        val displayMetrics: DisplayMetrics = DisplayMetrics()
+        val displayMetrics = DisplayMetrics()
         display.getMetrics(displayMetrics)
         return displayMetrics
     }
