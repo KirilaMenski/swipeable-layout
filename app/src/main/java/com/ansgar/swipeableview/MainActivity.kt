@@ -11,7 +11,8 @@ class MainActivity : AppCompatActivity(){
         setContentView(R.layout.activity_main)
 
 
-        swipeable_view.bottomIv = image_view
+//        swipeable_view.bottomIv = image_view
         swipeable_view.editText = edit_text
+        swipeable_view.rightIVPosition = 500
     }
 }

@@ -1,10 +1,12 @@
 package com.ansgar.swipeableview
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet
 import android.util.DisplayMetrics
 import android.util.Log
+import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -24,20 +26,27 @@ class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(contex
     private var xOffset: Float = 0f
     private var screenWidth: Int = 0
     private var screenHeight: Int = 0
+    private var heightAnimator: ValueAnimator? = null
+    private var animatedIvResId: Int = -1
+    private var leftIVPosition: Int = 0
+    var rightIVPosition: Int = 0
+
     var bottomIv: ImageView? = null
     var editText: EditText? = null
     var middleHeight: Int = 0
     var endHeight: Int = 0
+    var startHeight: Int = 0
 
     init {
         val typedArray: TypedArray = context.obtainStyledAttributes(attrs, R.styleable.SwipeableView, 0, 0)
-        val animatedIvResId = typedArray.getResourceId(R.styleable.SwipeableView_image_view_id, -1)
+        animatedIvResId = typedArray.getResourceId(R.styleable.SwipeableView_image_view_id, -1)
         middleHeight = typedArray.getDimensionPixelOffset(R.styleable.SwipeableView_middle_height, 0)
         endHeight = typedArray.getDimensionPixelOffset(R.styleable.SwipeableView_end_height, 0)
-//        bottomIv = findViewById(animatedIvResId)
-//        typedArray.recycle()
+        startHeight = typedArray.getDimensionPixelOffset(R.styleable.SwipeableView_start_height, 0)
+        typedArray.recycle()
         screenWidth = getScreenWidth()
         screenHeight = getScreenHeight()
+//        startHeight = height
     }
 
     /**
@@ -53,6 +62,11 @@ class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(contex
         val touchX: Float = event.x
         val touchY: Float = event.y
 
+        if (bottomIv == null && animatedIvResId != -1) {
+            bottomIv = findViewById(animatedIvResId)
+            leftIVPosition = bottomIv?.left ?: 0
+        }
+
         when (event.action) {
             MotionEvent.ACTION_DOWN -> onActionDown(touchX, touchY)
             MotionEvent.ACTION_MOVE -> onActionMove(rawTouchX, rawTouchY)
@@ -62,6 +76,7 @@ class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(contex
     }
 
     private fun onActionDown(x: Float, y: Float) {
+        stopAllAnimation()
         yOffset = y
     }
 
@@ -74,22 +89,49 @@ class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(contex
     }
 
     private fun onActionUp(rawTouchX: Float, rawTouchY: Float) {
-
+        val params: ViewGroup.LayoutParams = layoutParams
+        if (params.height < getScreenWidth() / 2 + getScreenWidth() / 4) {
+            animateChangeHeight(startHeight)
+        } else if (params.height >= getScreenWidth() / 2 + getScreenWidth() / 4) {
+            animateChangeHeight(getScreenHeight())
+        }
     }
 
     private fun moveBottomIv() {
-        val viewPosPercent: Double = height.toDouble() / getScreenHeight()
+        val viewPosPercent: Double = (height.toDouble() + leftIVPosition * 2 - startHeight) / (getScreenHeight())
         val animatedIvPos: Float = (width * viewPosPercent / 1.2).toFloat()
-//        bottomIv?.x = -animatedIvPos
+
+        bottomIv?.x = animatedIvPos
+
         animateEditText(animatedIvPos)
+        Log.i(TAG, "Height: $leftIVPosition, $rightIVPosition, ${bottomIv?.x}")
     }
 
     private fun animateEditText(value: Float) {
         val alpha = value / 1000
-        if (alpha < 0.15) editText?.visibility = View.GONE
+        if (alpha < 0.20) editText?.visibility = View.GONE
         else editText?.visibility = View.VISIBLE
 
         editText?.alpha = alpha * 2
+    }
+
+    private fun animateChangeHeight(to: Int, duration: Long = 300) {
+        heightAnimator = ValueAnimator.ofInt(measuredHeight, to)
+        heightAnimator?.addUpdateListener { valueAnimator ->
+            val height: Int = valueAnimator.animatedValue as Int
+            val layoutParams = layoutParams
+            layoutParams.height = height
+            this.layoutParams = layoutParams
+            moveBottomIv()
+        }
+        heightAnimator?.duration = duration
+        heightAnimator?.start()
+    }
+
+    private fun stopAllAnimation() {
+        animate().cancel()
+        clearAnimation()
+        heightAnimator?.cancel()
     }
 
     private fun getDisplayMetric(): DisplayMetrics {
@@ -107,6 +149,11 @@ class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(contex
     private fun getScreenWidth(): Int {
         return getDisplayMetric().widthPixels
     }
+
+    private fun convertToPixels(dp: Float): Float = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+            dp, getDisplayMetric())
+
+    private fun convertToDp(px: Int): Float = px / getDisplayMetric().density
 
     interface OnChangeListener {
         fun onViewCreated()
