@@ -24,27 +24,50 @@
         android:elevation="3dp"
         android:orientation="vertical"
         android:paddingTop="5dp"
+        app:bottom_container="@+id/bottom_container_rl"
+        app:content_container="@+id/content_container_rl"
+        app:head_container="@+id/header_container_rl"
         app:image_view_id="@+id/image_view"
         app:layout_constraintBottom_toBottomOf="parent"
         app:middle_height="150dp"
         app:start_height="55dp">
 
-        <EditText
-            android:id="@+id/edit_text"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:id="@+id/header_container_rl"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Input some text"
-            android:visibility="gone" />
+            android:visibility="gone">
 
-        <ImageView
-            android:id="@+id/image_v"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@android:drawable/alert_dark_frame"
-            android:visibility="gone" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Hello there!" />
+
+        </RelativeLayout>
 
         <RelativeLayout
-            android:id="@+id/content_bottom_ll"
+            android:id="@+id/content_container_rl"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone">
+
+            <EditText
+                android:id="@+id/edit_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:hint="Input some text" />
+
+            <ImageView
+                android:id="@+id/image_v"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/alert_dark_frame"
+                android:visibility="gone" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/bottom_container_rl"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="10dp">
