@@ -1,11 +1,11 @@
 package com.ansgar.swipeableview
 
+import android.animation.Animator
 import android.animation.ValueAnimator
 import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet
 import android.util.DisplayMetrics
-import android.util.Log
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
@@ -13,12 +13,12 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.EditText
 import android.widget.ImageView
-import android.widget.LinearLayout
+import android.widget.RelativeLayout
 
 /**
  * Copyright (c) 2018 SwipeableView. All rights reserved.
  */
-class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(context, attrs) {
+class SwipeableView(context: Context, attrs: AttributeSet) : RelativeLayout(context, attrs) {
 
     private val TAG: String = SwipeableView::class.java.simpleName
     private var onChangeListener: OnChangeListener? = null
@@ -33,7 +33,18 @@ class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(contex
     private var bottomResId: Int = -1
     private var leftIVPosition: Int = 0
 
-    var rightIVPosition: Int = 0
+    var onStateChanged: ((state: DisplayOption) -> Unit)? = null
+    var state: DisplayOption? = null
+        get() {
+            return when {
+                height == startHeight -> DisplayOption.START
+                height == getScreenHeight() / 2 -> DisplayOption.MIDDLE
+                else -> DisplayOption.FULL
+            }
+        }
+
+    var startIvPos: Int = 0
+    var endIvPosition: Double = 1.0
     var middleHeight: Int = 0
     var endHeight: Int = 0
     var startHeight: Int = 0
@@ -43,6 +54,8 @@ class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(contex
     var contentContainer: ViewGroup? = null
     var headContainer: ViewGroup? = null
     var bottomContainer: ViewGroup? = null
+    var expandTopArrow: View? = null
+    var expandBottomArrow: View? = null
 
     init {
         val typedArray: TypedArray = context.obtainStyledAttributes(attrs, R.styleable.SwipeableView, 0, 0)
@@ -56,7 +69,6 @@ class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(contex
         typedArray.recycle()
         screenWidth = getScreenWidth()
         screenHeight = getScreenHeight()
-//        startHeight = height
 
         initViews()
     }
@@ -68,11 +80,12 @@ class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(contex
 
     }
 
-    fun displayView(option: DisplayOption) {
-        displayView(option, -1)
+    fun changeState(option: DisplayOption) {
+        changeState(option, -1)
     }
 
-    fun displayView(option: DisplayOption, height: Int) {
+    fun changeState(option: DisplayOption, height: Int) {
+        state = option
         when (option) {
             DisplayOption.START -> animateChangeHeight(startHeight)
             DisplayOption.MIDDLE -> animateChangeHeight(getScreenHeight() / 2)
@@ -121,19 +134,23 @@ class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(contex
 
     private fun onActionUp(rawTouchX: Float, rawTouchY: Float) {
         val params: ViewGroup.LayoutParams = layoutParams
-        if (params.height < getScreenWidth() / 2 + getScreenWidth() / 4) {
+        if (params.height < getScreenHeight() / 2 + getScreenHeight() / 4) {
             animateChangeHeight(startHeight)
-        } else if (params.height >= getScreenWidth() / 2 + getScreenWidth() / 4) {
+        } else if (params.height >= getScreenHeight() / 2 + getScreenHeight() / 4) {
             animateChangeHeight(getScreenHeight())
         }
     }
 
     private fun moveBottomIv() {
-        val viewPosPercent: Double = (height.toDouble() + leftIVPosition * 2 - startHeight) / (getScreenHeight() / 2)
-        val animatedIvPos: Float = (width * viewPosPercent / 1.2).toFloat()
+        val viewPosPercent: Float = (height.toFloat() - startHeight) / (getScreenHeight())
+        val animatedIvPos: Float = width * viewPosPercent / 1.2f
 
-        bottomIv?.x = animatedIvPos
-
+        val way = bottomIv?.left ?: 0-startIvPos
+        if ((1 - viewPosPercent) > 0.83) {
+            bottomIv?.x = way * (1 - viewPosPercent * 6)
+        } else {
+            bottomIv?.x = way * 0.05f
+        }
         animateViews(animatedIvPos)
     }
 
@@ -145,6 +162,20 @@ class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(contex
         } else {
             contentContainer?.visibility = View.VISIBLE
             headContainer?.visibility = View.VISIBLE
+        }
+
+        val a: Float = (height.toFloat() / getScreenHeight() / 2) * 400f
+        if (height > getScreenHeight() / 2) {
+            if (expandTopArrow?.rotation!! <= 315) {
+                expandTopArrow?.rotation = 135 + a
+                expandBottomArrow?.rotation = -45 + a
+            } else {
+                expandTopArrow?.rotation = 315f
+                expandBottomArrow?.rotation = 135f
+            }
+        } else {
+            expandTopArrow?.rotation = 135f
+            expandBottomArrow?.rotation = -45f
         }
 
         contentContainer?.alpha = alpha * 2
@@ -160,6 +191,23 @@ class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(contex
             this.layoutParams = layoutParams
             moveBottomIv()
         }
+        heightAnimator?.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationRepeat(animation: Animator?) {
+
+            }
+
+            override fun onAnimationEnd(animation: Animator?) {
+
+            }
+
+            override fun onAnimationCancel(animation: Animator?) {
+
+            }
+
+            override fun onAnimationStart(animation: Animator?) {
+
+            }
+        })
         heightAnimator?.duration = duration
         heightAnimator?.start()
     }
@@ -190,6 +238,8 @@ class SwipeableView(context: Context, attrs: AttributeSet) : LinearLayout(contex
             dp, getDisplayMetric())
 
     private fun convertToDp(px: Int): Float = px / getDisplayMetric().density
+
+    private fun getDensity(): Float = getDisplayMetric().density
 
     interface OnChangeListener {
         fun onViewCreated()

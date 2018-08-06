@@ -36,26 +36,53 @@
             android:id="@+id/header_container_rl"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone">
+            android:visibility="gone"
+            tools:visibility="visible">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
                 android:text="Hello there!" />
 
+            <RelativeLayout
+                android:id="@+id/expand_rl"
+                android:layout_width="30dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true">
+
+                <ImageView
+                    android:id="@+id/expand_btm_iv"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_below="@+id/expand_top_iv"
+                    android:layout_toLeftOf="@+id/expand_top_iv"
+                    android:rotation="-45"
+                    android:src="@mipmap/ic_arrow" />
+
+                <ImageView
+                    android:id="@+id/expand_top_iv"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_alignParentRight="true"
+                    android:rotation="135"
+                    android:src="@mipmap/ic_arrow" />
+            </RelativeLayout>
+
         </RelativeLayout>
+
+        <EditText
+            android:id="@+id/edit_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/header_container_rl"
+            android:hint="Input some text" />
 
         <RelativeLayout
             android:id="@+id/content_container_rl"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone">
-
-            <EditText
-                android:id="@+id/edit_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:hint="Input some text" />
 
             <ImageView
                 android:id="@+id/image_v"
@@ -77,6 +104,8 @@
                 android:layout_width="20dp"
                 android:layout_height="20dp"
                 android:layout_alignParentBottom="true"
+                android:layout_marginRight="10dp"
+                android:layout_toLeftOf="@+id/text_view"
                 android:src="@drawable/image" />
 
             <TextView

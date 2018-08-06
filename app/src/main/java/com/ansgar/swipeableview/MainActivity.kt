@@ -13,14 +13,40 @@ class MainActivity : AppCompatActivity() {
 
 //        swipeable_view.bottomIv = image_view
         swipeable_view.editText = edit_text
-        swipeable_view.rightIVPosition = 500
+        swipeable_view.expandBottomArrow = expand_btm_iv
+        swipeable_view.expandTopArrow = expand_top_iv
+//        edit_text.clearFocus()
+//        edit_text.isFocusableInTouchMode = false
+//        edit_text.isFocusable = false
+        edit_text.setOnClickListener {
+            edit_text.isFocusableInTouchMode = true
+            edit_text.isFocusable = true
+        }
+        expand_rl.setOnClickListener {
+            if (swipeable_view.state == SwipeableView.DisplayOption.FULL) {
+                swipeable_view.changeState(SwipeableView.DisplayOption.START)
+            } else {
+                swipeable_view.changeState(SwipeableView.DisplayOption.FULL)
+            }
+        }
+        swipeable_view.onStateChanged = {state ->
+            when (state) {
+                SwipeableView.DisplayOption.START -> {
+//                    swipeable_view.changeState(SwipeableView.DisplayOption.MIDDLE)
+                    edit_text.isFocusableInTouchMode = false
+                    edit_text.isFocusable = false
+                }
+            }
+        }
+        swipeable_view.endIvPosition = 0.95
+        swipeable_view.startIvPos = 40
 
         text_view.setOnClickListener {
             when (i) {
-                0 -> swipeable_view.displayView(SwipeableView.DisplayOption.MIDDLE)
-                1 -> swipeable_view.displayView(SwipeableView.DisplayOption.FULL)
-                2 -> swipeable_view.displayView(SwipeableView.DisplayOption.START)
-                3 -> swipeable_view.displayView(SwipeableView.DisplayOption.SPECIFIC, 720)
+                0 -> swipeable_view.changeState(SwipeableView.DisplayOption.MIDDLE)
+                1 -> swipeable_view.changeState(SwipeableView.DisplayOption.FULL)
+                2 -> swipeable_view.changeState(SwipeableView.DisplayOption.START)
+                3 -> swipeable_view.changeState(SwipeableView.DisplayOption.SPECIFIC, 720)
             }
             if (i == 3) i = 0
             else i++
