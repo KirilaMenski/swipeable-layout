@@ -2,6 +2,7 @@ package com.ansgar.swipeableview
 
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -29,7 +30,7 @@ class MainActivity : AppCompatActivity() {
                 swipeable_view.changeState(SwipeableView.DisplayOption.FULL)
             }
         }
-        swipeable_view.onStateChanged = {state ->
+        swipeable_view.onStateChange = { state ->
             when (state) {
                 SwipeableView.DisplayOption.START -> {
 //                    swipeable_view.changeState(SwipeableView.DisplayOption.MIDDLE)
@@ -38,6 +39,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+        swipeable_view.onHeightChange = {height -> Log.i("Swipeable", "Height: $height")}
         swipeable_view.endIvPosition = 0.95
         swipeable_view.startIvPos = 40
 

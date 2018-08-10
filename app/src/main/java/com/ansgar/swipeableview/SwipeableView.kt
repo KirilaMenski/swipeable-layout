@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet
 import android.util.DisplayMetrics
+import android.util.Log
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
@@ -33,7 +34,9 @@ class SwipeableView(context: Context, attrs: AttributeSet) : RelativeLayout(cont
     private var bottomResId: Int = -1
     private var leftIVPosition: Int = 0
 
-    var onStateChanged: ((state: DisplayOption) -> Unit)? = null
+    var onStateChange: ((state: DisplayOption) -> Unit)? = null
+    var onHeightChange:((height: Int) -> Unit)? = null
+
     var state: DisplayOption? = null
         get() {
             return when {
@@ -95,7 +98,6 @@ class SwipeableView(context: Context, attrs: AttributeSet) : RelativeLayout(cont
     }
 
     private fun initViews() {
-//        if (bottomIv == null && animatedIvResId != -1) {
         this.post {
             bottomIv = findViewById(animatedIvResId)
             contentContainer = findViewById(contentResId)
@@ -129,6 +131,7 @@ class SwipeableView(context: Context, attrs: AttributeSet) : RelativeLayout(cont
         params.height = (screenHeight - y + yOffset).toInt()
         this.layoutParams = layoutParams
 
+        onHeightChange?.let { it(height) }
         moveBottomIv()
     }
 
@@ -177,7 +180,7 @@ class SwipeableView(context: Context, attrs: AttributeSet) : RelativeLayout(cont
             expandTopArrow?.rotation = 135f
             expandBottomArrow?.rotation = -45f
         }
-
+        Log.i(TAG, "rotation: ${expandBottomArrow?.rotation}")
         contentContainer?.alpha = alpha * 2
         headContainer?.alpha = alpha * 2
     }
@@ -197,7 +200,7 @@ class SwipeableView(context: Context, attrs: AttributeSet) : RelativeLayout(cont
             }
 
             override fun onAnimationEnd(animation: Animator?) {
-
+                onHeightChange?.let { it(height) }
             }
 
             override fun onAnimationCancel(animation: Animator?) {
