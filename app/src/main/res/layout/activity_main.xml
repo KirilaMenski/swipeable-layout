@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:id="@+id/main_activity"
     android:layout_height="match_parent"
     android:background="@android:color/darker_gray"
     tools:context=".MainActivity">
@@ -24,11 +25,7 @@
         android:elevation="3dp"
         android:orientation="vertical"
         android:paddingTop="5dp"
-        app:bottom_container="@+id/bottom_container_rl"
-        app:content_container="@+id/content_container_rl"
-        app:head_container="@+id/header_container_rl"
-        app:image_view_id="@+id/image_view"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_alignParentBottom="true"
         app:middle_height="150dp"
         app:start_height="55dp">
 
@@ -121,4 +118,4 @@
 
     </com.ansgar.swipeableview.SwipeableView>
 
-</android.support.constraint.ConstraintLayout>
+</RelativeLayout>

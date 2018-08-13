@@ -15,6 +15,7 @@ import android.view.WindowManager
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import java.lang.ref.WeakReference
 
 /**
  * Copyright (c) 2018 SwipeableView. All rights reserved.
@@ -25,55 +26,27 @@ class SwipeableView(context: Context, attrs: AttributeSet) : RelativeLayout(cont
     private var onChangeListener: OnChangeListener? = null
     private var yOffset: Float = 0f
     private var xOffset: Float = 0f
-    private var screenWidth: Int = 0
-    private var screenHeight: Int = 0
     private var heightAnimator: ValueAnimator? = null
-    private var animatedIvResId: Int = -1
-    private var contentResId: Int = -1
-    private var headerResId: Int = -1
-    private var bottomResId: Int = -1
-    private var leftIVPosition: Int = 0
 
     var onStateChange: ((state: DisplayOption) -> Unit)? = null
-    var onHeightChange:((height: Int) -> Unit)? = null
+    var onHeightChange: ((height: Int) -> Unit)? = null
+
+    var screenWidth: Int = 0
+    var screenHeight: Int = 0
 
     var state: DisplayOption? = null
-        get() {
-            return when {
-                height == startHeight -> DisplayOption.START
-                height == getScreenHeight() / 2 -> DisplayOption.MIDDLE
-                else -> DisplayOption.FULL
-            }
-        }
 
-    var startIvPos: Int = 0
-    var endIvPosition: Double = 1.0
     var middleHeight: Int = 0
     var endHeight: Int = 0
     var startHeight: Int = 0
 
-    var bottomIv: ImageView? = null
-    var editText: EditText? = null
-    var contentContainer: ViewGroup? = null
-    var headContainer: ViewGroup? = null
-    var bottomContainer: ViewGroup? = null
-    var expandTopArrow: View? = null
-    var expandBottomArrow: View? = null
-
     init {
         val typedArray: TypedArray = context.obtainStyledAttributes(attrs, R.styleable.SwipeableView, 0, 0)
-        animatedIvResId = typedArray.getResourceId(R.styleable.SwipeableView_image_view_id, -1)
-        contentResId = typedArray.getResourceId(R.styleable.SwipeableView_content_container, -1)
-        headerResId = typedArray.getResourceId(R.styleable.SwipeableView_head_container, -1)
-        bottomResId = typedArray.getResourceId(R.styleable.SwipeableView_bottom_container, -1)
         middleHeight = typedArray.getDimensionPixelOffset(R.styleable.SwipeableView_middle_height, 0)
         endHeight = typedArray.getDimensionPixelOffset(R.styleable.SwipeableView_end_height, 0)
         startHeight = typedArray.getDimensionPixelOffset(R.styleable.SwipeableView_start_height, 0)
         typedArray.recycle()
-        screenWidth = getScreenWidth()
-        screenHeight = getScreenHeight()
-
-        initViews()
+        screenHeight = ScreenUtil(WeakReference(context)).getScreenHeight()
     }
 
     /**
@@ -91,19 +64,9 @@ class SwipeableView(context: Context, attrs: AttributeSet) : RelativeLayout(cont
         state = option
         when (option) {
             DisplayOption.START -> animateChangeHeight(startHeight)
-            DisplayOption.MIDDLE -> animateChangeHeight(getScreenHeight() / 2)
-            DisplayOption.FULL -> animateChangeHeight(getScreenHeight())
+            DisplayOption.MIDDLE -> animateChangeHeight(screenHeight / 2)
+            DisplayOption.FULL -> animateChangeHeight(screenHeight)
             DisplayOption.SPECIFIC -> animateChangeHeight(height)
-        }
-    }
-
-    private fun initViews() {
-        this.post {
-            bottomIv = findViewById(animatedIvResId)
-            contentContainer = findViewById(contentResId)
-            headContainer = findViewById(headerResId)
-            bottomContainer = findViewById(bottomResId)
-            leftIVPosition = bottomIv?.left ?: 0
         }
     }
 
@@ -127,62 +90,23 @@ class SwipeableView(context: Context, attrs: AttributeSet) : RelativeLayout(cont
     }
 
     private fun onActionMove(x: Float, y: Float) {
+        if (y < screenHeight - startHeight) return
+
         val params: ViewGroup.LayoutParams = layoutParams
         params.height = (screenHeight - y + yOffset).toInt()
         this.layoutParams = layoutParams
 
+        initDisplayOption()
         onHeightChange?.let { it(height) }
-        moveBottomIv()
     }
 
     private fun onActionUp(rawTouchX: Float, rawTouchY: Float) {
         val params: ViewGroup.LayoutParams = layoutParams
-        if (params.height < getScreenHeight() / 2 + getScreenHeight() / 4) {
+        if (params.height < screenHeight / 2 + screenHeight / 4) {
             animateChangeHeight(startHeight)
-        } else if (params.height >= getScreenHeight() / 2 + getScreenHeight() / 4) {
-            animateChangeHeight(getScreenHeight())
+        } else if (params.height >= screenHeight / 2 + screenHeight / 4) {
+            animateChangeHeight(screenHeight)
         }
-    }
-
-    private fun moveBottomIv() {
-        val viewPosPercent: Float = (height.toFloat() - startHeight) / (getScreenHeight())
-        val animatedIvPos: Float = width * viewPosPercent / 1.2f
-
-        val way = bottomIv?.left ?: 0-startIvPos
-        if ((1 - viewPosPercent) > 0.83) {
-            bottomIv?.x = way * (1 - viewPosPercent * 6)
-        } else {
-            bottomIv?.x = way * 0.05f
-        }
-        animateViews(animatedIvPos)
-    }
-
-    private fun animateViews(value: Float) {
-        val alpha = value / 1000
-        if (height < startHeight * 2) {
-            contentContainer?.visibility = View.GONE
-            headContainer?.visibility = View.GONE
-        } else {
-            contentContainer?.visibility = View.VISIBLE
-            headContainer?.visibility = View.VISIBLE
-        }
-
-        val a: Float = (height.toFloat() / getScreenHeight() / 2) * 400f
-        if (height > getScreenHeight() / 2) {
-            if (expandTopArrow?.rotation!! <= 315) {
-                expandTopArrow?.rotation = 135 + a
-                expandBottomArrow?.rotation = -45 + a
-            } else {
-                expandTopArrow?.rotation = 315f
-                expandBottomArrow?.rotation = 135f
-            }
-        } else {
-            expandTopArrow?.rotation = 135f
-            expandBottomArrow?.rotation = -45f
-        }
-        Log.i(TAG, "rotation: ${expandBottomArrow?.rotation}")
-        contentContainer?.alpha = alpha * 2
-        headContainer?.alpha = alpha * 2
     }
 
     private fun animateChangeHeight(to: Int, duration: Long = 300) {
@@ -192,7 +116,7 @@ class SwipeableView(context: Context, attrs: AttributeSet) : RelativeLayout(cont
             val layoutParams = layoutParams
             layoutParams.height = height
             this.layoutParams = layoutParams
-            moveBottomIv()
+            onHeightChange?.let { it(height) }
         }
         heightAnimator?.addListener(object : Animator.AnimatorListener {
             override fun onAnimationRepeat(animation: Animator?) {
@@ -200,7 +124,7 @@ class SwipeableView(context: Context, attrs: AttributeSet) : RelativeLayout(cont
             }
 
             override fun onAnimationEnd(animation: Animator?) {
-                onHeightChange?.let { it(height) }
+                initDisplayOption()
             }
 
             override fun onAnimationCancel(animation: Animator?) {
@@ -215,34 +139,19 @@ class SwipeableView(context: Context, attrs: AttributeSet) : RelativeLayout(cont
         heightAnimator?.start()
     }
 
+    private fun initDisplayOption() {
+        when {
+            height == startHeight -> DisplayOption.START
+            height == screenHeight / 2 -> DisplayOption.MIDDLE
+            else -> DisplayOption.FULL
+        }
+    }
+
     private fun stopAllAnimation() {
         animate().cancel()
         clearAnimation()
         heightAnimator?.cancel()
     }
-
-    private fun getDisplayMetric(): DisplayMetrics {
-        val windowManager: WindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        val display = windowManager.defaultDisplay
-        val displayMetrics = DisplayMetrics()
-        display.getMetrics(displayMetrics)
-        return displayMetrics
-    }
-
-    private fun getScreenHeight(): Int {
-        return getDisplayMetric().heightPixels
-    }
-
-    private fun getScreenWidth(): Int {
-        return getDisplayMetric().widthPixels
-    }
-
-    private fun convertToPixels(dp: Float): Float = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
-            dp, getDisplayMetric())
-
-    private fun convertToDp(px: Int): Float = px / getDisplayMetric().density
-
-    private fun getDensity(): Float = getDisplayMetric().density
 
     interface OnChangeListener {
         fun onViewCreated()
