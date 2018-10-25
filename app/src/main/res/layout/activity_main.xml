@@ -17,7 +17,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <com.ansgar.swipeableview.SwipeableView
+    <com.ansgar.swipelayout.SwipeLayout
         android:id="@+id/swipeable_view"
         android:layout_width="match_parent"
         android:layout_height="55dp"
@@ -26,6 +26,7 @@
         android:orientation="vertical"
         android:paddingTop="5dp"
         android:layout_alignParentBottom="true"
+        app:end_height="400dp"
         app:middle_height="150dp"
         app:start_height="55dp">
 
@@ -68,27 +69,12 @@
 
         </RelativeLayout>
 
-        <EditText
-            android:id="@+id/edit_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/header_container_rl"
-            android:hint="Input some text" />
-
-        <RelativeLayout
-            android:id="@+id/content_container_rl"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone">
-
-            <ImageView
-                android:id="@+id/image_v"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@android:drawable/alert_dark_frame"
-                android:visibility="gone" />
-
-        </RelativeLayout>
+        <!--<EditText-->
+            <!--android:id="@+id/edit_text"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:layout_below="@+id/header_container_rl"-->
+            <!--android:hint="Input some text" />-->
 
         <RelativeLayout
             android:id="@+id/bottom_container_rl"
@@ -103,7 +89,7 @@
                 android:layout_alignParentBottom="true"
                 android:layout_marginRight="10dp"
                 android:layout_toLeftOf="@+id/text_view"
-                android:src="@drawable/image" />
+                android:src="@drawable/image_drawable" />
 
             <TextView
                 android:id="@+id/text_view"
@@ -116,6 +102,6 @@
 
         </RelativeLayout>
 
-    </com.ansgar.swipeableview.SwipeableView>
+    </com.ansgar.swipelayout.SwipeLayout>
 
 </RelativeLayout>

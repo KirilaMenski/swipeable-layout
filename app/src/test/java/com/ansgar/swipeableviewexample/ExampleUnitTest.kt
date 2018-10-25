@@ -1,4 +1,4 @@
-package com.ansgar.swipeableview
+package com.ansgar.swipeableviewexample
 
 import org.junit.Test
 

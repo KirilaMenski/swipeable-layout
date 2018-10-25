@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <declare-styleable name="SwipeableView">
+    <declare-styleable name="SwipeLayout">
         <attr name="start_height" format="dimension"/>
         <attr name="middle_height" format="dimension"/>
         <attr name="end_height" format="dimension"/>

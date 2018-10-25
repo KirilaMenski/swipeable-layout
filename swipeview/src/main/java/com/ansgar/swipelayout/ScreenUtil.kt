@@ -1,4 +1,4 @@
-package com.ansgar.swipeableview
+package com.ansgar.swipelayout
 
 import android.content.Context
 import android.util.DisplayMetrics
@@ -6,7 +6,7 @@ import android.util.TypedValue
 import android.view.WindowManager
 import java.lang.ref.WeakReference
 
-class ScreenUtil(val weakContext: WeakReference<Context>) {
+internal class ScreenUtil(val weakContext: WeakReference<Context>) {
 
     fun getDisplayMetric(): DisplayMetrics {
         val windowManager: WindowManager = weakContext.get()?.getSystemService(Context.WINDOW_SERVICE) as WindowManager
